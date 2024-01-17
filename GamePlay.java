@@ -1,5 +1,4 @@
 import java.util.Scanner;
-
 public class GamePlay {
     private static Person player;
 
@@ -21,16 +20,15 @@ public class GamePlay {
         Numbers numberGame = new Numbers();
         numberGame.generateNumber();
 
-        System.out.print(player.getFirstName());
-        if (!player.getLastName().isEmpty()) {
-            System.out.print(" " + player.getLastName());
-        }
-        System.out.println(", guess what number I picked between 0 and 100.");
-
         boolean guessedCorrectly = false;
 
         while (!guessedCorrectly) {
-            System.out.print("Enter your guess: ");
+            System.out.print(player.getFirstName());
+            if (!player.getLastName().isEmpty()) {
+                System.out.print(" " + player.getLastName());
+            }
+            System.out.println(", guess what number I picked between 0 and 100.");
+
             int guess = scnr.nextInt();
 
             guessedCorrectly = numberGame.compareNumber(guess);
