@@ -1,6 +1,7 @@
 import java.util.Random;
+
 public class Numbers {
-    private int randomNum;
+    private static int randomNum;
 
     public int getRandomNum() {
         return randomNum;
@@ -10,12 +11,12 @@ public class Numbers {
         this.randomNum = randomNum;
     }
 
-    public void generateNumber() {
+    public static void generateNumber() {
         Random random = new Random();
         randomNum = random.nextInt(101);
     }
 
-    public boolean compareNumber(int guess) {
+    public static boolean compareNumber(int guess) {
         if (guess == randomNum) {
             System.out.println("Congratulations, you guessed the number!");
             return true;
@@ -23,7 +24,7 @@ public class Numbers {
             System.out.println("I'm sorry. That guess was too high.");
             return false;
         } else {
-            System.out.println("I'm sorry, That guess was too low.");
+            System.out.println("I'm sorry. That guess was too low.");
             return false;
         }
     }

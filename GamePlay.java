@@ -1,9 +1,14 @@
 import java.util.Scanner;
+
 public class GamePlay {
-    private static Person player;
+    private static Players player;
 
     public static void main(String[] args) {
         Scanner scnr = new Scanner(System.in);
+
+        Hosts host = new Hosts("John", "Doe");
+
+        host.randomizeNum();
 
         System.out.print("What is your first name? ");
         String playerName = scnr.nextLine();
@@ -11,27 +16,32 @@ public class GamePlay {
         System.out.print("Would you like to enter a last name? Leave blank if not. ");
         String lastName = scnr.nextLine();
 
-        if (lastName.isEmpty()) {
-            player = new Person(playerName);
-        } else {
-            player = new Person(playerName, lastName);
-        }
+        player = new Players(playerName, lastName);
 
-        Numbers numberGame = new Numbers();
-        numberGame.generateNumber();
+        Turn turn = new Turn();
 
-        boolean guessedCorrectly = false;
+        boolean playAgain = true;
 
-        while (!guessedCorrectly) {
-            System.out.print(player.getFirstName());
-            if (!player.getLastName().isEmpty()) {
-                System.out.print(" " + player.getLastName());
+        while (playAgain) {
+
+            boolean guessedCorrectly = false;
+
+            while (!guessedCorrectly) {
+
+                guessedCorrectly = turn.takeTurn(player, host);
+
+                if (guessedCorrectly) {
+                    System.out.print("Play another game? (y or n): ");
+                    char playAnother = scnr.next().charAt(0);
+
+                    if (playAnother == 'y' || playAnother == 'Y') {
+
+                        host.randomizeNum();
+                    } else {
+                        playAgain = false;
+                    }
+                }
             }
-            System.out.println(", guess what number I picked between 0 and 100.");
-
-            int guess = scnr.nextInt();
-
-            guessedCorrectly = numberGame.compareNumber(guess);
         }
 
         scnr.close();
