@@ -1,47 +1,43 @@
-import java.util.Random;
 import java.util.Scanner;
+import java.util.Random;
 
 public class Turn {
-    private static Numbers numbers;
+    private Phrases phrases;
 
-    public static boolean takeTurn(Players[] players, Hosts host) {
-        Scanner scnr = new Scanner(System.in);
+    public Turn(Phrases phrases) {
+        this.phrases = phrases;
+    }
 
-        if (numbers == null) {
-            numbers = new Numbers();
-            numbers.generateNumber();
-        }
+    public boolean takeTurn(Players player, Hosts host, Scanner scnr) {
+        System.out.println("The phrase to guess is: " + Phrases.getPlayingPhrase());
+        System.out.println(host.getFirstName() + " " + host.getLastName() +
+                " says \"" + player.getFirstName() + (player.getLastName().isEmpty() ? "" : " " + player.getLastName())
+                + ", enter your guess for a letter in the phrase\"");
 
-        for (int i = 0; i < players.length; i++) {
-            Players player = players[i];
+        boolean validGuess = false;
+        while (!validGuess) {
+            String letterGuess = scnr.nextLine().toLowerCase(); // Convert to lowercase for case-insensitivity
 
-            System.out.println(host.getFirstName() + " " + host.getLastName() +
-                    " says \"" + player.getFirstName() + (player.getLastName().isEmpty() ? "" : " " + player.getLastName())
-                    + ", enter your guess for my random number between 0 and 100\"");
+            try {
+                boolean correctGuess = phrases.findLetters(letterGuess);
 
-            int guess = scnr.nextInt();
+                Random random = new Random();
+                boolean winMoney = random.nextBoolean();
 
-            boolean guessedCorrectly = numbers.compareNumber(guess);
+                Award award = winMoney ? new Money() : new Physical();
+                int winnings = award.displayWinnings(player, correctGuess);
+                player.setMoney(player.getMoney() + winnings);
 
-            Random random = new Random();
-            boolean winMoney = random.nextBoolean();
+                System.out.println(player.toString());
+                validGuess = true;
 
-            if (winMoney) {
-                Money money = new Money();
-                int moneyWinnings = money.displayWinnings(player, guessedCorrectly);
-                player.setMoney(player.getMoney() + moneyWinnings);
-            } else {
-                Physical physical = new Physical();
-                int physicalWinnings = physical.displayWinnings(player, guessedCorrectly);
-                player.setMoney(player.getMoney() + physicalWinnings);
-            }
-
-            System.out.println(player.toString());
-
-            if (guessedCorrectly) {
-                return true;
+            } catch (MultipleLettersException e) {
+                System.out.println(e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
             }
         }
-        return false;
+
+        return !Phrases.getPlayingPhrase().contains("_");
     }
 }

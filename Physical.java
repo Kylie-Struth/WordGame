@@ -14,11 +14,11 @@ public class Physical implements Award {
         String prize = getRandomPrize();
 
         if (correctGuess) {
-            System.out.println(player.getFirstName() + ", congratulations! You won a " + prize + ".");
+            System.out.println(player.getFirstName() + ", yes, that letter is in the phrase! You won a " + prize + ".");
         } else {
-            System.out.println(player.getFirstName() + ", sorry, that is incorrect! If you had gotten it correct, you COULD HAVE WON a " + prize + ".");
+            System.out.println(player.getFirstName() + ", sorry, that letter is NOT in the phrase! If you had gotten it correct, you COULD HAVE WON a " + prize + ".");
         }
 
-        return 0;
+        return 0; // You might want to modify this based on your actual logic
     }
 }
