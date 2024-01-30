@@ -1,3 +1,4 @@
+import javax.swing.JOptionPane;
 import java.util.Random;
 
 public class Physical implements Award {
@@ -14,11 +15,13 @@ public class Physical implements Award {
         String prize = getRandomPrize();
 
         if (correctGuess) {
-            System.out.println(player.getFirstName() + ", yes, that letter is in the phrase! You won a " + prize + ".");
+            JOptionPane.showMessageDialog(null, player.getFirstName() +
+                    ", yes, that letter is in the phrase! You won a " + prize + ".");
         } else {
-            System.out.println(player.getFirstName() + ", sorry, that letter is NOT in the phrase! If you had gotten it correct, you COULD HAVE WON a " + prize + ".");
+            JOptionPane.showMessageDialog(null, player.getFirstName() +
+                    ", sorry, that letter is NOT in the phrase! You could have won a " + prize + ".");
         }
 
-        return 0; // You might want to modify this based on your actual logic
+        return 0;
     }
 }

@@ -1,4 +1,7 @@
-class Phrases {
+import java.util.HashSet;
+import java.util.Set;
+
+public class Phrases {
     private static String gamePhrase;
     private static String playingPhrase;
 
@@ -15,30 +18,42 @@ class Phrases {
         return playingPhrase;
     }
 
-    public static boolean findLetters(String letter) throws MultipleLettersException {
-        if (letter.length() != 1) {
-            throw new MultipleLettersException();
-        }
+    public static boolean findLetters(String letters) throws MultipleLettersException {
+        Set<Character> uniqueLetters = new HashSet<>();
+        boolean anyCorrectGuess = false;
 
-        char guess = Character.toLowerCase(letter.charAt(0));
+        for (int i = 0; i < letters.length(); i++) {
+            char guess = Character.toLowerCase(letters.charAt(i));
 
-        if (!Character.isLetter(guess)) {
-            throw new IllegalArgumentException("Invalid input. Please enter a letter.");
-        }
+            if (letters.length() > 1) {
+                throw new MultipleLettersException("Please enter only one letter at a time.");
+            }
 
-        boolean letterFound = false;
+            if (!Character.isLetter(guess)) {
+                throw new IllegalArgumentException("Invalid input. Please enter a letter.");
+            }
 
-        for (int i = 0; i < gamePhrase.length(); i++) {
-            char currentChar = Character.toLowerCase(gamePhrase.charAt(i));
+            if (uniqueLetters.contains(guess)) {
+                throw new MultipleLettersException("You've already guessed the letter '" + guess + "'.");
+            }
 
-            if (currentChar == guess) {
-                if (playingPhrase.charAt(i) == '_') {
-                    playingPhrase = playingPhrase.substring(0, i) + currentChar + playingPhrase.substring(i + 1);
-                    letterFound = true;
+            uniqueLetters.add(guess);
+
+            boolean letterFound = false;
+
+            for (int j = 0; j < gamePhrase.length(); j++) {
+                char currentChar = Character.toLowerCase(gamePhrase.charAt(j));
+
+                if (currentChar == guess) {
+                    if (playingPhrase.charAt(j) == '_') {
+                        playingPhrase = playingPhrase.substring(0, j) + currentChar + playingPhrase.substring(j + 1);
+                        letterFound = true;
+                        anyCorrectGuess = true;  // At least one correct guess
+                    }
                 }
             }
         }
 
-        return letterFound;
+        return anyCorrectGuess;
     }
 }
