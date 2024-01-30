@@ -19,6 +19,6 @@ public class Physical implements Award {
             System.out.println(player.getFirstName() + ", sorry, that letter is NOT in the phrase! If you had gotten it correct, you COULD HAVE WON a " + prize + ".");
         }
 
-        return 0; // You might want to modify this based on your actual logic
+        return 0; 
     }
 }
