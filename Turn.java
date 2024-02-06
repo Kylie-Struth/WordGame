@@ -26,7 +26,7 @@ public class Turn {
             player.setMoney(player.getMoney() + winnings);
             gui.updatePlayerLabel(player.toString());
 
-            gui.updatePlayingPhraseLabel();
+            gui.updatePlayingPhraseLabel("Current Phrase: " + Phrases.getPlayingPhrase());
 
             validGuess = true;
 
