@@ -48,7 +48,7 @@ public class Phrases {
                     if (playingPhrase.charAt(j) == '_') {
                         playingPhrase = playingPhrase.substring(0, j) + currentChar + playingPhrase.substring(j + 1);
                         letterFound = true;
-                        anyCorrectGuess = true;  // At least one correct guess
+                        anyCorrectGuess = true;
                     }
                 }
             }

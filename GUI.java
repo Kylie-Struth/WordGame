@@ -1,12 +1,16 @@
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.InputEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.awt.event.InputEvent;
 
 public class GUI extends JFrame {
     private List<Players> playersList;
@@ -19,6 +23,17 @@ public class GUI extends JFrame {
     private Turn turn;
     private Map<String, JLabel> moneyLabels;
     private JScrollPane scrollPane;
+    private static final String WINNER_SOUND_PATH = "sounds/winner.aiff";
+    private static final String INVALID_SOUND_PATH = "sounds/invalid.wav";
+    private static final String DINOSAUR_IMAGE_PATH = "imgs/dinosaur.png";
+    private static final int DINOSAUR_WIDTH = 100;
+    private static final int DINOSAUR_HEIGHT = 100;
+    private static final int ANIMATION_DELAY = 25;
+    private static final int MOVEMENT_STEP = 1;
+    private Timer dinosaurTimer;
+    private boolean moveRight = true;
+    private int dinosaurX = 0;
+    private JLabel dinosaurLabel;
 
     public GUI() {
         playersList = new ArrayList<>();
@@ -26,7 +41,7 @@ public class GUI extends JFrame {
         turn = new Turn(new Phrases(), this);
 
         setTitle("Word Game");
-        setSize(400, 300);
+        setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JMenuBar menuBar = new JMenuBar();
@@ -51,6 +66,10 @@ public class GUI extends JFrame {
         JMenuItem layoutMenuItem = new JMenuItem("Layout");
         layoutMenuItem.addActionListener(e -> showLayoutPopup());
         aboutMenu.add(layoutMenuItem);
+
+        JMenuItem attributionMenuItem = new JMenuItem("Attribution");
+        attributionMenuItem.addActionListener(e -> showAttribution());
+        aboutMenu.add(attributionMenuItem);
 
         InputMap inputMap = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap actionMap = getRootPane().getActionMap();
@@ -79,9 +98,6 @@ public class GUI extends JFrame {
         startTurnButton.addActionListener(e -> startTurn());
         add(startTurnButton);
 
-        playingPhraseLabel = new JLabel("Playing Phrase: " + Phrases.getPlayingPhrase());
-        add(playingPhraseLabel);
-
         messageTextArea = new JTextArea();
         messageTextArea.setEditable(false);
 
@@ -97,8 +113,31 @@ public class GUI extends JFrame {
 
         moneyLabels = new HashMap<>();
 
+        dinosaurLabel = new JLabel();
+        ImageIcon dinosaurIcon = new ImageIcon(DINOSAUR_IMAGE_PATH);
+        Image dinosaurImage = dinosaurIcon.getImage().getScaledInstance(DINOSAUR_WIDTH, DINOSAUR_HEIGHT, Image.SCALE_SMOOTH);
+        dinosaurLabel.setIcon(new ImageIcon(dinosaurImage));
+        add(dinosaurLabel);
+
         setLayout(new FlowLayout());
         setVisible(true);
+
+        // Timer for dinosaur animation
+        dinosaurTimer = new Timer(ANIMATION_DELAY, e -> {
+            if (moveRight) {
+                dinosaurX += MOVEMENT_STEP;
+                if (dinosaurX >= getWidth() - DINOSAUR_WIDTH) {
+                    moveRight = false;
+                }
+            } else {
+                dinosaurX -= MOVEMENT_STEP;
+                if (dinosaurX <= 0) {
+                    moveRight = true;
+                }
+            }
+            dinosaurLabel.setLocation(dinosaurX, getHeight() - DINOSAUR_HEIGHT - 50);
+        });
+        dinosaurTimer.start();
     }
 
     private String getPlayersNames() {
@@ -141,13 +180,23 @@ public class GUI extends JFrame {
             String letterGuess = JOptionPane.showInputDialog(this, "Player " + currentPlayer.getFirstName() +
                     ", enter your guess for a letter in the phrase:");
 
-            boolean correctGuess = turn.takeTurn(currentPlayer, host, letterGuess);
+            if (letterGuess == null) {
+                return;
+            }
 
-            currentPlayerIndex = (currentPlayerIndex + 1) % playersList.size();
+            if (letterGuess.length() == 1 && Character.isLetter(letterGuess.charAt(0))) {
+                boolean correctGuess = turn.takeTurn(currentPlayer, host, letterGuess);
 
-            gameSolved = !Phrases.getPlayingPhrase().contains("_");
-            if (gameSolved) {
-                updatePlayingPhraseLabel("You solved the puzzle and won the game!");
+                currentPlayerIndex = (currentPlayerIndex + 1) % playersList.size();
+
+                gameSolved = !Phrases.getPlayingPhrase().contains("_");
+                if (gameSolved) {
+                    updatePlayingPhraseLabel("You solved the puzzle and won the game!");
+                    playSound(WINNER_SOUND_PATH);
+                }
+            } else {
+                playSound(INVALID_SOUND_PATH);
+                JOptionPane.showMessageDialog(this, "Invalid input! Please enter a single letter.");
             }
         }
 
@@ -202,6 +251,23 @@ public class GUI extends JFrame {
 
         revalidate();
         repaint();
+    }
+
+    private void showAttribution() {
+        JOptionPane.showMessageDialog(this, "Images Attribution: https://unsplash.com/photos/black-sony-ps-4-game-controller-EXU2EFzd4uY, https://unsplash.com/photos/black-and-gray-blender-ZN_86cZrSN0, https://unsplash.com/photos/a-flat-screen-tv-sitting-on-top-of-a-wooden-table-cF6Le-0viHY https://unsplash.com/photos/person-using-laptop-computer-holding-card-Q59HmzK38eQ https://unsplash.com/photos/a-large-swimming-pool-surrounded-by-palm-trees-_pPHgeHz1uk, <a href=\"https://www.freepik.com/free-vector/happy-cartoon-dinosaur-character-smiling_58468188.htm#query=dino&position=43&from_view=keyword&track=sph&uuid=faab5fba-2765-43e8-a7d2-e1ccdba2bd38#position=43&query=dino, Image by brgfx</a> on Freepik\n" +
+                "Sounds Attribution: https://freesound.org/s/587252/, https://freesound.org/s/587253/, https://freesound.org/s/97980/, https://freesound.org/s/529384/");
+    }
+
+    private void playSound(String soundPath) {
+        try {
+            File soundFile = new File(soundPath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
